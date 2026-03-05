@@ -5,3 +5,66 @@ Labour Force Survey,INE,labour,https://www.ine.pt
 Central Balance Sheet Database,Banco de Portugal,firms,https://bpstat.bportugal.pt
 Community Innovation Survey,INE,innovation,https://www.ine.pt
 Household Budget Survey,INE,consumption,https://www.ine.pt
+National Accounts,INE,macroeconomics,https://www.ine.pt
+Regional Accounts,INE,macroeconomics,https://www.ine.pt
+Population Census,INE,demography,https://www.ine.pt
+Employment Statistics,INE,labour,https://www.ine.pt
+Unemployment Statistics,INE,labour,https://www.ine.pt
+Price Index (CPI),INE,prices,https://www.ine.pt
+Producer Price Index,INE,prices,https://www.ine.pt
+Tourism Statistics,INE,tourism,https://www.ine.pt
+Construction Statistics,INE,construction,https://www.ine.pt
+Transport Statistics,INE,transport,https://www.ine.pt
+Energy Statistics,DGEG,energy,https://www.dgeg.gov.pt
+Education Statistics,DGEEC,education,https://www.dgeec.mec.pt
+Higher Education Statistics,DGEEC,education,https://www.dgeec.mec.pt
+School Statistics,DGEEC,education,https://www.dgeec.mec.pt
+Health Statistics,INE,health,https://www.ine.pt
+Hospital Statistics,SNS,health,https://www.sns.gov.pt
+Regional Development Indicators,PORDATA,regional,https://www.pordata.pt
+Municipal Indicators,PORDATA,regional,https://www.pordata.pt
+Business Demography,INE,firms,https://www.ine.pt
+Foreign Trade Statistics,INE,trade,https://www.ine.pt
+Exports Statistics,INE,trade,https://www.ine.pt
+Imports Statistics,INE,trade,https://www.ine.pt
+Financial Accounts,Banco de Portugal,finance,https://bpstat.bportugal.pt
+Monetary Statistics,Banco de Portugal,finance,https://bpstat.bportugal.pt
+Interest Rates,Banco de Portugal,finance,https://bpstat.bportugal.pt
+Credit Statistics,Banco de Portugal,finance,https://bpstat.bportugal.pt
+Public Debt,IGCP,public finance,https://www.igcp.pt
+Government Finance Statistics,INE,public finance,https://www.ine.pt
+Tax Revenue Statistics,AT,public finance,https://info.portaldasfinancas.gov.pt
+VAT Statistics,AT,public finance,https://info.portaldasfinancas.gov.pt
+Income Tax Statistics,AT,public finance,https://info.portaldasfinancas.gov.pt
+Agriculture Statistics,INE,agriculture,https://www.ine.pt
+Fisheries Statistics,INE,fisheries,https://www.ine.pt
+Environment Statistics,INE,environment,https://www.ine.pt
+Waste Statistics,APA,environment,https://apambiente.pt
+Water Statistics,APA,environment,https://apambiente.pt
+Housing Statistics,INE,housing,https://www.ine.pt
+Real Estate Prices,INE,housing,https://www.ine.pt
+Rent Statistics,INE,housing,https://www.ine.pt
+Migration Statistics,INE,migration,https://www.ine.pt
+Immigration Statistics,SEF,migration,https://sefstat.sef.pt
+Emigration Statistics,INE,migration,https://www.ine.pt
+Digital Economy Statistics,INE,digital economy,https://www.ine.pt
+ICT Usage Survey,INE,digital economy,https://www.ine.pt
+Research and Development Survey,DGEEC,innovation,https://www.dgeec.mec.pt
+Patent Statistics,INPI,innovation,https://inpi.justica.gov.pt
+Startup Statistics,Startup Portugal,entrepreneurship,https://startupportugal.com
+Venture Capital Statistics,CMVM,finance,https://www.cmvm.pt
+Stock Market Statistics,Euronext Lisbon,finance,https://www.euronext.com
+Regional Labour Statistics,INE,labour,https://www.ine.pt
+Gender Equality Statistics,CIG,gender,https://www.cig.gov.pt
+Crime Statistics,MAI,crime,https://www.mai.gov.pt
+Justice Statistics,DGPJ,justice,https://www.dgpj.mj.pt
+Road Accident Statistics,ANSR,transport,https://www.ansr.pt
+Public Transport Statistics,IMT,transport,https://www.imt-ip.pt
+Air Transport Statistics,ANAC,transport,https://www.anac.pt
+Port Statistics,AMT,transport,https://www.amt-autoridade.pt
+Energy Consumption Statistics,DGEG,energy,https://www.dgeg.gov.pt
+Renewable Energy Statistics,DGEG,energy,https://www.dgeg.gov.pt
+Climate Indicators,IPMA,climate,https://www.ipma.pt
+Weather Statistics,IPMA,climate,https://www.ipma.pt
+Regional GDP,INE,macroeconomics,https://www.ine.pt
+Productivity Statistics,INE,productivity,https://www.ine.pt
