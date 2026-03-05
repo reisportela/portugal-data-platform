@@ -8,3 +8,4 @@ statsmodels
 linearmodels
 pyreadstat
 geopandas
+sqlite-utils

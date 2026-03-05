@@ -1,12 +1,6 @@
-# Portugal Data Platform
+# Portugal Data Platform (Production Template)
 
-This repository contains a deployable Streamlit application for exploring Portuguese datasets.
-
-## Features
-
-- Dataset discovery
-- Econometrics data lab
-- Extendable architecture for data atlas, observatory, and research tools
+This repository contains a full template to deploy the Portugal Data Platform using Streamlit.
 
 ## Run locally
 
@@ -15,6 +9,14 @@ streamlit run app.py
 
 ## Deploy
 
-Push this repository to GitHub and deploy using:
+Push this repository to GitHub and deploy with:
 
 https://share.streamlit.io
+
+## Modules included
+
+- Dataset search engine
+- Econometrics Data Lab
+- Economic Observatory dashboard
+- Export tools
+- Metadata database support

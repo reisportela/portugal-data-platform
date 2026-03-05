@@ -1,0 +1,3 @@
+indicator,source,api_id,frequency
+Unemployment rate,INE,12345,monthly
+Inflation,INE,23456,monthly
