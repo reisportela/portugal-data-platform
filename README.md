@@ -1,22 +1,27 @@
-# Portugal Data Platform (Production Template)
+# Full Working Search Engine
 
-This repository contains a full template to deploy the Portugal Data Platform using Streamlit.
+Files included:
 
-## Run locally
+- `modules/search_engine.py` → production-ready search component
+- `search_page_example.py` → Streamlit example page
 
-pip install -r requirements.txt
-streamlit run app.py
+## How to use
 
-## Deploy
+1. Replace your current `modules/search_engine.py` with this version.
+2. Keep `dataset_catalog.csv` in your project root.
+3. Import in Streamlit:
 
-Push this repository to GitHub and deploy with:
+```python
+from modules.search_engine import SearchEngine
+engine = SearchEngine("dataset_catalog.csv")
+results = engine.search("wages")
+```
 
-https://share.streamlit.io
+## Features
 
-## Modules included
-
-- Dataset search engine
-- Econometrics Data Lab
-- Economic Observatory dashboard
-- Export tools
-- Metadata database support
+- ranked results
+- search across dataset name, institution, domain, and optional metadata columns
+- suggestions
+- filter by domain/institution
+- matched-fields output
+- simple HTML highlighter helper
