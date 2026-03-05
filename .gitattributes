@@ -1,0 +1,4 @@
+* text=auto
+*.csv text
+*.py text
+*.md text
