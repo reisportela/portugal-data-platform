@@ -1,0 +1,3 @@
+dataset_name,institution,domain,unit,spatial_level,time_coverage,access,link
+Quadros de Pessoal,GEP,labour,worker-firm,municipality,1985-present,restricted research access,https://www.gep.mtsss.gov.pt
+EU-SILC,INE,income,household,national,2004-present,research access via INE,https://www.ine.pt
