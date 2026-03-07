@@ -9,13 +9,22 @@ from modules.observatory import fake_indicator
 from modules.export import export_csv
 
 
+APP_DATA_VERSION = "2026-03-07-2"
+
+
+def safe_unique_values(frame: pd.DataFrame, column: str) -> list[str]:
+    if column not in frame.columns:
+        return []
+    return sorted(value for value in frame[column].astype(str).unique() if value)
+
+
 @st.cache_resource(show_spinner=False)
-def load_search_engine():
+def load_search_engine(cache_version: str):
     return SearchEngine("dataset_catalog.csv")
 
 
 @st.cache_resource(show_spinner=False)
-def load_papers_catalog():
+def load_papers_catalog(cache_version: str):
     return PapersCatalog("data/papers_catalog.csv")
 
 
@@ -51,25 +60,25 @@ elif page == "Dataset Search":
         "English and Portuguese queries are supported."
     )
 
-    engine = load_search_engine()
+    engine = load_search_engine(APP_DATA_VERSION)
 
     with st.sidebar:
         st.subheader("Search filters")
         domain_filter = st.multiselect(
             "Domain",
-            sorted(engine.df["domain"].astype(str).unique()),
+            safe_unique_values(engine.df, "domain"),
         )
         institution_filter = st.multiselect(
             "Institution",
-            sorted(engine.df["institution"].astype(str).unique()),
+            safe_unique_values(engine.df, "institution"),
         )
         source_type_filter = st.multiselect(
             "Source type",
-            sorted(engine.df["source_type"].astype(str).unique()),
+            safe_unique_values(engine.df, "source_type"),
         )
         access_filter = st.multiselect(
             "Access",
-            sorted(value for value in engine.df.get("access", pd.Series(dtype=str)).astype(str).unique() if value),
+            safe_unique_values(engine.df, "access"),
         )
         include_broad_matches = st.checkbox(
             "Include broader matches",
@@ -91,7 +100,7 @@ elif page == "Dataset Search":
     )
 
     if query:
-        papers_catalog = load_papers_catalog()
+        papers_catalog = load_papers_catalog(APP_DATA_VERSION)
         suggestions = engine.suggest(query)
         if suggestions:
             st.caption("Suggestions: " + " | ".join(suggestions))
@@ -215,7 +224,7 @@ elif page == "Research Papers":
         "Search a curated layer of Portugal-focused empirical papers and see which datasets they use."
     )
 
-    papers_catalog = load_papers_catalog()
+    papers_catalog = load_papers_catalog(APP_DATA_VERSION)
 
     with st.sidebar:
         st.subheader("Paper filters")
