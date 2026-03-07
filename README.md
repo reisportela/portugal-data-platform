@@ -25,3 +25,19 @@ results = engine.search("wages")
 - filter by domain/institution
 - matched-fields output
 - simple HTML highlighter helper
+- curated paper layer linked to datasets
+- moderated source suggestion inbox
+
+## Moderated Suggestions
+
+The app now supports public source suggestions through a separate moderation inbox.
+
+- Public submissions are stored in `data/source_suggestions.sqlite3`
+- They do not appear in the public catalog automatically
+- Approved suggestions still need manual promotion into `data/search_catalog_extensions.csv`
+
+To enable the optional curator inbox in Streamlit, set a secret:
+
+```toml
+suggestions_admin_password = "your-password"
+```

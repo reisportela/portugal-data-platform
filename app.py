@@ -1,9 +1,11 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from urllib.parse import urlparse
 
 from modules.papers_catalog import PapersCatalog
 from modules.search_engine import SearchEngine
+from modules.source_suggestions import REVIEW_STATUSES, SourceSuggestionsStore
 from modules.econometrics import run_ols
 from modules.observatory import fake_indicator
 from modules.export import export_csv
@@ -18,6 +20,21 @@ def safe_unique_values(frame: pd.DataFrame, column: str) -> list[str]:
     return sorted(value for value in frame[column].astype(str).unique() if value)
 
 
+def secret_value(name: str, default: str = "") -> str:
+    try:
+        return str(st.secrets[name]).strip()
+    except Exception:
+        return default
+
+
+def is_valid_http_url(url: str) -> bool:
+    try:
+        parsed = urlparse(str(url).strip())
+    except ValueError:
+        return False
+    return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
+
+
 @st.cache_resource(show_spinner=False)
 def load_search_engine(cache_version: str):
     return SearchEngine("dataset_catalog.csv")
@@ -28,20 +45,28 @@ def load_papers_catalog(cache_version: str):
     return PapersCatalog("data/papers_catalog.csv")
 
 
+@st.cache_resource(show_spinner=False)
+def load_suggestions_store(cache_version: str):
+    return SourceSuggestionsStore("data/source_suggestions.sqlite3")
+
+
 st.set_page_config(page_title="Portugal Data Platform", layout="wide")
 
 st.title("Portugal Data Platform")
 
-page = st.sidebar.selectbox(
-    "Navigation",
-    [
-        "Home",
-        "Dataset Search",
-        "Research Papers",
-        "Data Lab",
-        "Economic Observatory",
-    ],
-)
+admin_review_password = secret_value("suggestions_admin_password")
+navigation_options = [
+    "Home",
+    "Dataset Search",
+    "Research Papers",
+    "Suggest a Source",
+    "Data Lab",
+    "Economic Observatory",
+]
+if admin_review_password:
+    navigation_options.insert(4, "Suggestion Inbox")
+
+page = st.sidebar.selectbox("Navigation", navigation_options)
 
 if page == "Home":
     st.write(
@@ -49,7 +74,7 @@ if page == "Home":
 Welcome to the Portugal Data Platform.
 
 This portal helps discover Portuguese datasets,
-find papers that use them, run simple econometric analyses, and explore economic indicators.
+find papers that use them, suggest new sources for review, run simple econometric analyses, and explore economic indicators.
 """
     )
 
@@ -361,6 +386,218 @@ elif page == "Research Papers":
                 "papers_catalog_view.csv",
                 mime="text/csv",
             )
+
+elif page == "Suggest a Source":
+    st.header("Suggest a Source")
+    st.caption(
+        "Suggest a Portuguese dataset, portal, API, or documentation source. "
+        "Submissions go into a moderation inbox and never appear in public search automatically."
+    )
+
+    suggestions_store = load_suggestions_store(APP_DATA_VERSION)
+
+    st.info(
+        f"There {'is' if suggestions_store.pending_count() == 1 else 'are'} currently "
+        f"{suggestions_store.pending_count()} suggestion(s) waiting for review."
+    )
+
+    with st.expander("Submission guidelines", expanded=False):
+        st.write(
+            "Prioritise official Portuguese data sources, stable documentation pages, clear source ownership, "
+            "and concise notes on why the source is useful for teaching or research."
+        )
+
+    with st.form("source_suggestion_form", clear_on_submit=True):
+        dataset_name = st.text_input("Source or dataset name *")
+        institution = st.text_input("Institution or provider *")
+        domain = st.text_input("Domain *", placeholder="labour, health, finance, education, municipal")
+        link = st.text_input("Source link *", placeholder="https://...")
+
+        form_cols = st.columns(3)
+        source_type = form_cols[0].selectbox(
+            "Source type",
+            [
+                "",
+                "Portal",
+                "API",
+                "Dataset",
+                "Microdata",
+                "Documentation",
+                "Survey",
+                "Accounts",
+                "Indicator set",
+                "Proprietary database",
+            ],
+        )
+        access = form_cols[1].selectbox(
+            "Access",
+            ["", "Open", "Restricted", "Proprietary", "Unknown"],
+        )
+        spatial_level = form_cols[2].text_input(
+            "Spatial level",
+            placeholder="national, regional, municipal, firm level",
+        )
+
+        description = st.text_area(
+            "Why should this be included? *",
+            placeholder="Explain what the source contains and why it is useful for Portugal-focused research or teaching.",
+        )
+        keywords = st.text_area(
+            "Keywords",
+            placeholder="labour | unemployment | wages | households",
+        )
+        submission_notes = st.text_area(
+            "Additional notes for the curator",
+            placeholder="Coverage, licensing, caveats, known papers using it, or access constraints.",
+        )
+
+        submitter_cols = st.columns(2)
+        submitter_name = submitter_cols[0].text_input("Your name")
+        submitter_email = submitter_cols[1].text_input("Your email")
+
+        submitted = st.form_submit_button("Send suggestion for review")
+
+    if submitted:
+        errors = []
+        if not str(dataset_name).strip():
+            errors.append("`Source or dataset name` is required.")
+        if not str(institution).strip():
+            errors.append("`Institution or provider` is required.")
+        if not str(domain).strip():
+            errors.append("`Domain` is required.")
+        if not str(link).strip():
+            errors.append("`Source link` is required.")
+        elif not is_valid_http_url(link):
+            errors.append("`Source link` must be a valid `http` or `https` URL.")
+        if not str(description).strip():
+            errors.append("`Why should this be included?` is required.")
+        if submitter_email and "@" not in str(submitter_email):
+            errors.append("`Your email` must look like an email address.")
+
+        if errors:
+            st.error("\n".join(errors))
+        else:
+            suggestion_id = suggestions_store.submit_suggestion(
+                {
+                    "dataset_name": dataset_name,
+                    "institution": institution,
+                    "domain": domain,
+                    "link": link,
+                    "description": description,
+                    "keywords": keywords,
+                    "source_type": source_type,
+                    "access": access,
+                    "spatial_level": spatial_level,
+                    "submitter_name": submitter_name,
+                    "submitter_email": submitter_email,
+                    "submission_notes": submission_notes,
+                }
+            )
+            st.success(
+                f"Suggestion #{suggestion_id} was saved for review. "
+                "It will not appear in the public search until a curator approves and promotes it."
+            )
+
+elif page == "Suggestion Inbox":
+    st.header("Suggestion Inbox")
+    st.caption(
+        "Curator-only review queue for suggested data sources. Approval here does not publish a source automatically."
+    )
+
+    if not admin_review_password:
+        st.warning("Set `suggestions_admin_password` in Streamlit secrets to enable the curator inbox.")
+    else:
+        entered_password = st.text_input("Curator password", type="password")
+        if entered_password != admin_review_password:
+            st.info("Enter the curator password to review source suggestions.")
+        else:
+            suggestions_store = load_suggestions_store(APP_DATA_VERSION)
+
+            inbox_cols = st.columns(3)
+            review_filter = inbox_cols[0].selectbox(
+                "Review status",
+                ["pending_review", "approved", "rejected", "all"],
+            )
+            inbox_limit = inbox_cols[1].slider("Rows to display", min_value=5, max_value=100, value=25)
+            approved_candidates = suggestions_store.approved_catalog_candidates()
+            inbox_cols[2].metric("Approved not yet promoted", len(approved_candidates))
+
+            suggestions_view = suggestions_store.list_suggestions(
+                None if review_filter == "all" else review_filter
+            )
+
+            if suggestions_view.empty:
+                st.warning("No suggestions found for the current filter.")
+            else:
+                st.dataframe(
+                    suggestions_view.head(inbox_limit),
+                    use_container_width=True,
+                    hide_index=True,
+                )
+                st.download_button(
+                    "Download suggestions (CSV)",
+                    export_csv(suggestions_view),
+                    "source_suggestions.csv",
+                    mime="text/csv",
+                )
+
+                selected_id = st.selectbox(
+                    "Suggestion to review",
+                    suggestions_view["id"].astype(int).tolist(),
+                )
+                selected_row = suggestions_view[suggestions_view["id"] == selected_id].iloc[0]
+
+                st.markdown(f"### {selected_row['dataset_name']}")
+                st.markdown(f"**Institution:** {selected_row['institution']}")
+                st.markdown(f"**Domain:** {selected_row['domain']}")
+                st.markdown(f"**Link:** {selected_row['link']}")
+                st.markdown(f"**Description:** {selected_row['description']}")
+                if str(selected_row["keywords"]).strip():
+                    st.markdown(f"**Keywords:** {selected_row['keywords']}")
+                if str(selected_row["submission_notes"]).strip():
+                    st.markdown(f"**Submission notes:** {selected_row['submission_notes']}")
+                if str(selected_row["submitter_name"]).strip() or str(selected_row["submitter_email"]).strip():
+                    st.markdown(
+                        f"**Submitted by:** {selected_row['submitter_name']} {selected_row['submitter_email']}".strip()
+                    )
+                st.caption(
+                    f"Submitted at {selected_row['submitted_at']} | Current status: {selected_row['review_status']}"
+                )
+
+                with st.form("review_suggestion_form"):
+                    current_status = str(selected_row["review_status"])
+                    status_index = REVIEW_STATUSES.index(current_status) if current_status in REVIEW_STATUSES else 0
+                    new_status = st.selectbox(
+                        "Set review status",
+                        REVIEW_STATUSES,
+                        index=status_index,
+                    )
+                    curator_notes = st.text_area(
+                        "Curator notes",
+                        value=str(selected_row["curator_notes"]),
+                        placeholder="Why was this approved or rejected? Any edits needed before promotion?",
+                    )
+                    review_submitted = st.form_submit_button("Save review decision")
+
+                if review_submitted:
+                    suggestions_store.update_review(selected_id, new_status, curator_notes)
+                    st.success(
+                        "Review status updated. Approved suggestions remain outside public search until you manually add them to the catalog."
+                    )
+
+                if not approved_candidates.empty:
+                    st.subheader("Approved Catalog Candidates")
+                    st.dataframe(
+                        approved_candidates,
+                        use_container_width=True,
+                        hide_index=True,
+                    )
+                    st.download_button(
+                        "Download approved candidates (CSV)",
+                        export_csv(approved_candidates),
+                        "approved_source_candidates.csv",
+                        mime="text/csv",
+                    )
 
 elif page == "Data Lab":
     st.header("Econometrics Data Lab")
